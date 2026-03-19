@@ -96,7 +96,8 @@ def get_trial_confirmation_keyboard(lang: str,
 def get_subscription_options_keyboard(subscription_options: Dict[
     float, Optional[float]], currency_symbol_val: str, lang: str,
                                       i18n_instance, traffic_mode: bool = False,
-                                      settings: Settings = None) -> InlineKeyboardMarkup:
+                                      settings: Settings = None,
+                                      has_legacy_sub: bool = False) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     def _format_gb(val: float) -> str:
@@ -115,7 +116,8 @@ def get_subscription_options_keyboard(subscription_options: Dict[
                 price=price,
                 currency_symbol="⭐",
             )
-            callback_data = f"pay_stars:{_format_gb(gb)}:{price}:traffic"
+            pay_data = f"pay_stars:{_format_gb(gb)}:{price}:traffic"
+            callback_data = f"legacy_check:{pay_data}" if has_legacy_sub else pay_data
             builder.button(text=button_text, callback_data=callback_data)
         builder.adjust(1)
     elif subscription_options:
