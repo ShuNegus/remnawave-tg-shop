@@ -218,20 +218,24 @@ async def my_subscription_command_handler(
         limit_display = _fmt_gb(active.get("traffic_limit_bytes"))
         used_display = _fmt_gb(active.get("traffic_used_bytes"))
         remaining_display = get_text("traffic_na")
+        usage_pct = 0
         try:
             limit_val = active.get("traffic_limit_bytes") or 0
             used_val = active.get("traffic_used_bytes") or 0
             remaining_val = max(0, float(limit_val) - float(used_val))
             remaining_display = _fmt_gb(remaining_val)
+            usage_pct = int(float(used_val) / float(limit_val) * 100) if limit_val > 0 else 0
         except Exception as exc:
             logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
         text = get_text(
             "my_traffic_details",
             status=active.get("status_from_panel", get_text("status_active")).capitalize(),
-            end_date=end_date.strftime("%Y-%m-%d") if end_date else get_text("traffic_no_expiry"),
+            end_date=end_date.strftime("%d.%m.%Y") if end_date else get_text("traffic_no_expiry"),
+            days_left=max(0, days_left),
             traffic_limit=limit_display,
             traffic_used=used_display,
             traffic_left=remaining_display,
+            usage_pct=usage_pct,
             config_link=config_link_value,
         )
     else:
@@ -323,22 +327,13 @@ async def my_subscription_command_handler(
                 )
             ])
 
-        # 2) Auto-renew toggle (YooKassa only)
-        if not traffic_mode and local_sub and local_sub.provider == "yookassa" and settings.yookassa_autopayments_active:
-            toggle_text = (
-                get_text("autorenew_disable_button") if local_sub.auto_renew_enabled else get_text("autorenew_enable_button")
-            )
+        # 2) "Buy more GB" button in traffic mode
+        if traffic_mode:
             prepend_rows.append([
                 InlineKeyboardButton(
-                    text=toggle_text,
-                    callback_data=f"toggle_autorenew:{local_sub.subscription_id}:{1 if not local_sub.auto_renew_enabled else 0}",
+                    text=get_text("buy_more_gb_button"),
+                    callback_data="main_action:subscribe",
                 )
-            ])
-
-        # 3) Payment methods management (when autopayments enabled)
-        if not traffic_mode and settings.yookassa_autopayments_active:
-            prepend_rows.append([
-                InlineKeyboardButton(text=get_text("payment_methods_manage_button"), callback_data="pm:manage")
             ])
 
         if prepend_rows:
