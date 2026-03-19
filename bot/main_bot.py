@@ -160,7 +160,7 @@ async def on_startup_configured(dispatcher: Dispatcher):
         if settings.traffic_sale_mode and settings.SUBSCRIPTION_NOTIFICATIONS_ENABLED:
             from bot.services.traffic_notification_worker import TrafficNotificationWorker
             traffic_worker = TrafficNotificationWorker(
-                bot=dispatcher.get("bot") or dispatcher["bot"],
+                bot=bot,
                 settings=settings,
                 i18n=i18n_instance,
                 panel_service=panel_service,
