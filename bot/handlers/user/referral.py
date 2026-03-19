@@ -84,7 +84,11 @@ async def referral_command_handler(event: Union[types.Message,
 
     bonus_info_parts = []
     if getattr(settings, "traffic_sale_mode", False):
-        bonus_details_str = _("referral_not_available_for_traffic")
+        bonus_details_str = _(
+            "referral_not_available_for_traffic",
+            inviter_gb=int(settings.REFERRAL_INVITER_BONUS_GB),
+            inviter_days=settings.REFERRAL_INVITER_BONUS_DAYS,
+        )
     else:
         if settings.subscription_options:
             for months_period_key, _price in sorted(
