@@ -312,7 +312,7 @@ async def run_bot(settings_param: Settings):
 
     logging.info(f"--- Bot Run Mode Decision ---")
     logging.info(f"Configured WEBHOOK_BASE_URL: '{tg_webhook_base}' -> Webhook Mode: ENABLED")
-    logging.info(f"YooKassa webhook path: '{settings_param.yookassa_webhook_path}'")
+    logging.info(f"Panel webhook path: '{settings_param.panel_webhook_path}'")
     logging.info(f"Decision: Run AIOHTTP server: ENABLED (required for webhooks)")
     logging.info(f"--- End Bot Run Mode Decision ---")
 

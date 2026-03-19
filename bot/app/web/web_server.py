@@ -59,38 +59,7 @@ async def build_and_start_web_app(
             "set" if telegram_webhook_secret else "not_set",
         )
 
-    from bot.handlers.user.payment import yookassa_webhook_route
-    from bot.services.crypto_pay_service import cryptopay_webhook_route
     from bot.services.panel_webhook_service import panel_webhook_route
-    from bot.services.freekassa_service import freekassa_webhook_route
-    from bot.services.platega_service import platega_webhook_route
-    from bot.services.severpay_service import severpay_webhook_route
-
-    cp_path = settings.cryptopay_webhook_path
-    if cp_path.startswith("/"):
-        app.router.add_post(cp_path, cryptopay_webhook_route)
-        logging.info("CryptoPay webhook route configured at: [POST] %s", cp_path)
-
-    fk_path = settings.freekassa_webhook_path
-    if fk_path.startswith("/"):
-        app.router.add_post(fk_path, freekassa_webhook_route)
-        logging.info(f"FreeKassa webhook route configured at: [POST] {fk_path}")
-
-    pg_path = settings.platega_webhook_path
-    if pg_path.startswith("/"):
-        app.router.add_post(pg_path, platega_webhook_route)
-        logging.info(f"Platega webhook route configured at: [POST] {pg_path}")
-
-    sp_path = settings.severpay_webhook_path
-    if sp_path.startswith("/"):
-        app.router.add_post(sp_path, severpay_webhook_route)
-        logging.info(f"SeverPay webhook route configured at: [POST] {sp_path}")
-
-    # YooKassa webhook (register only when base URL present and path configured)
-    yk_path = settings.yookassa_webhook_path
-    if settings.WEBHOOK_BASE_URL and yk_path and yk_path.startswith("/"):
-        app.router.add_post(yk_path, yookassa_webhook_route)
-        logging.info(f"YooKassa webhook route configured at: [POST] {yk_path}")
 
     panel_path = settings.panel_webhook_path
     if panel_path.startswith("/"):
