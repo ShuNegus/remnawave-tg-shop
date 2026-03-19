@@ -95,18 +95,39 @@ def get_trial_confirmation_keyboard(lang: str,
 
 def get_subscription_options_keyboard(subscription_options: Dict[
     float, Optional[float]], currency_symbol_val: str, lang: str,
-                                      i18n_instance, traffic_mode: bool = False) -> InlineKeyboardMarkup:
+                                      i18n_instance, traffic_mode: bool = False,
+                                      settings: Settings = None,
+                                      has_legacy_sub: bool = False) -> InlineKeyboardMarkup:
     _ = lambda key, **kwargs: i18n_instance.gettext(lang, key, **kwargs)
     builder = InlineKeyboardBuilder()
     def _format_gb(val: float) -> str:
         return str(int(val)) if float(val).is_integer() else f"{val:g}"
-    if subscription_options:
+
+    if traffic_mode and settings and settings.traffic_packages_parsed:
+        # New GB package mode: buttons go directly to Stars payment
+        for pkg in settings.traffic_packages_parsed:
+            gb = pkg["gb"]
+            price = pkg["price"]
+            days = pkg["days"]
+            button_text = _(
+                "buy_traffic_package_button",
+                traffic_gb=_format_gb(gb),
+                days=days,
+                price=price,
+                currency_symbol="⭐",
+            )
+            pay_data = f"pay_stars:{_format_gb(gb)}:{price}:traffic"
+            callback_data = f"legacy_check:{pay_data}" if has_legacy_sub else pay_data
+            builder.button(text=button_text, callback_data=callback_data)
+        builder.adjust(1)
+    elif subscription_options:
         for months, price in subscription_options.items():
             if price is not None:
                 if traffic_mode:
                     button_text = _(
                         "buy_traffic_package_button",
                         traffic_gb=_format_gb(months),
+                        days=30,
                         price=price,
                         currency_symbol=currency_symbol_val,
                     )

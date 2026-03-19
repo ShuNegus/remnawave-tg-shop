@@ -34,56 +34,22 @@ class Settings(BaseSettings):
         default=None,
         description="Public username or invite link to the required channel for join button")
 
+    # Legacy payment provider fields kept for DB compatibility but no longer used
     YOOKASSA_SHOP_ID: Optional[str] = None
     YOOKASSA_SECRET_KEY: Optional[str] = None
     YOOKASSA_RETURN_URL: Optional[str] = None
-
     YOOKASSA_DEFAULT_RECEIPT_EMAIL: Optional[str] = Field(default=None)
     YOOKASSA_VAT_CODE: int = Field(default=1)
-    YOOKASSA_TAX_SYSTEM_CODE: Optional[int] = Field(
-        default=None,
-        description="Tax system code for YooKassa receipts (1..6 per 54-FZ)"
-    )
-    YOOKASSA_PAYMENT_MODE: Optional[str] = Field(
-        default=None,
-        description="Optional override for YooKassa receipt item payment_mode."
-    )
-    YOOKASSA_PAYMENT_SUBJECT: Optional[str] = Field(
-        default=None,
-        description="Optional override for YooKassa receipt item payment_subject."
-    )
-    # Single toggle to enable recurring payments (saving cards, managing payment methods, auto-renew)
+    YOOKASSA_TAX_SYSTEM_CODE: Optional[int] = Field(default=None)
+    YOOKASSA_PAYMENT_MODE: Optional[str] = Field(default=None)
+    YOOKASSA_PAYMENT_SUBJECT: Optional[str] = Field(default=None)
     YOOKASSA_AUTOPAYMENTS_ENABLED: bool = Field(default=False)
-    YOOKASSA_AUTOPAYMENTS_REQUIRE_CARD_BINDING: bool = Field(
-        default=True,
-        description="When true, new YooKassa payments in autopay mode force card binding without a user checkbox."
-    )
-
-    LKNPD_INN: Optional[str] = Field(
-        default=None,
-        alias="NALOGO_INN",
-        description="INN for lknpd.nalog.ru (self-employed) authentication"
-    )
-    LKNPD_PASSWORD: Optional[str] = Field(
-        default=None,
-        alias="NALOGO_PASSWORD",
-        description="Password for lknpd.nalog.ru (self-employed) authentication"
-    )
-    LKNPD_API_URL: str = Field(
-        default="https://lknpd.nalog.ru/api",
-        alias="NALOGO_API_URL",
-        description="Base URL for LKNPD API (can be overridden for proxies)"
-    )
-    LKNPD_RECEIPT_NAME_SUBSCRIPTION: str = Field(
-        default="subscription {months} months",
-        alias="NALOGO_RECEIPT_NAME_SUBSCRIPTION",
-        description="Receipt item name for time-based subscriptions. Use {months} placeholder for duration."
-    )
-    LKNPD_RECEIPT_NAME_TRAFFIC: str = Field(
-        default="traffic package {gb} GB",
-        alias="NALOGO_RECEIPT_NAME_TRAFFIC",
-        description="Receipt item name for traffic packages. Use {gb} placeholder for traffic amount."
-    )
+    YOOKASSA_AUTOPAYMENTS_REQUIRE_CARD_BINDING: bool = Field(default=False)
+    LKNPD_INN: Optional[str] = Field(default=None, alias="NALOGO_INN")
+    LKNPD_PASSWORD: Optional[str] = Field(default=None, alias="NALOGO_PASSWORD")
+    LKNPD_API_URL: str = Field(default="https://lknpd.nalog.ru/api", alias="NALOGO_API_URL")
+    LKNPD_RECEIPT_NAME_SUBSCRIPTION: str = Field(default="subscription {months} months", alias="NALOGO_RECEIPT_NAME_SUBSCRIPTION")
+    LKNPD_RECEIPT_NAME_TRAFFIC: str = Field(default="traffic package {gb} GB", alias="NALOGO_RECEIPT_NAME_TRAFFIC")
 
     WEBHOOK_BASE_URL: Optional[str] = None
     TELEGRAM_WEBHOOK_PATH: str = Field(
@@ -95,21 +61,19 @@ class Settings(BaseSettings):
         description="Secret token for Telegram webhook header validation",
     )
 
+    # Legacy payment provider fields (kept for compatibility, not used)
     CRYPTOPAY_TOKEN: Optional[str] = None
     CRYPTOPAY_NETWORK: str = Field(default="mainnet")
     CRYPTOPAY_CURRENCY_TYPE: str = Field(default="fiat")
     CRYPTOPAY_ASSET: str = Field(default="RUB")
-    CRYPTOPAY_ENABLED: bool = Field(default=True)
+    CRYPTOPAY_ENABLED: bool = Field(default=False)
     PLATEGA_ENABLED: bool = Field(default=False)
     PLATEGA_BASE_URL: str = Field(default="https://app.platega.io")
     PLATEGA_MERCHANT_ID: Optional[str] = None
     PLATEGA_SECRET: Optional[str] = None
-    PLATEGA_PAYMENT_METHOD: int = Field(
-        default=2, description="Platega payment method ID (e.g., 2 for SBP QR)"
-    )
+    PLATEGA_PAYMENT_METHOD: int = Field(default=2)
     PLATEGA_RETURN_URL: Optional[str] = Field(default=None)
     PLATEGA_FAILED_URL: Optional[str] = Field(default=None)
-
     FREEKASSA_ENABLED: bool = Field(default=False)
     FREEKASSA_MERCHANT_ID: Optional[str] = None
     FREEKASSA_FIRST_SECRET: Optional[str] = None
@@ -118,75 +82,80 @@ class Settings(BaseSettings):
     FREEKASSA_API_KEY: Optional[str] = None
     FREEKASSA_PAYMENT_IP: Optional[str] = None
     FREEKASSA_PAYMENT_METHOD_ID: Optional[int] = None
-
     SEVERPAY_ENABLED: bool = Field(default=False)
     SEVERPAY_MID: Optional[int] = None
     SEVERPAY_TOKEN: Optional[str] = None
     SEVERPAY_RETURN_URL: Optional[str] = None
     SEVERPAY_BASE_URL: str = Field(default="https://severpay.io/api/merchant")
-    SEVERPAY_LIFETIME_MINUTES: Optional[int] = Field(
-        default=None,
-        description="Lifetime of the payment link in minutes (30-4320, defaults to provider value)",
-    )
+    SEVERPAY_LIFETIME_MINUTES: Optional[int] = Field(default=None)
+    YOOKASSA_ENABLED: bool = Field(default=False)
 
-    YOOKASSA_ENABLED: bool = Field(default=True)
+    # Only Telegram Stars payment
     STARS_ENABLED: bool = Field(default=True)
-    STARS_PROVIDER_TOKEN: Optional[str] = Field(
-        default="",
-        description="Provider token for Telegram invoices. For Stars (XTR) should stay empty.",
-    )
-    PAYMENT_METHODS_ORDER: Optional[str] = Field(
-        default=None,
-        description="Comma-separated list of payment methods to show (e.g., severpay,freekassa,yookassa,platega,stars,cryptopay)",
-    )
+    STARS_PROVIDER_TOKEN: Optional[str] = Field(default="")
+    PAYMENT_METHODS_ORDER: Optional[str] = Field(default="stars")
 
-    MONTH_1_ENABLED: bool = Field(default=True, alias="1_MONTH_ENABLED")
-    MONTH_3_ENABLED: bool = Field(default=True, alias="3_MONTHS_ENABLED")
-    MONTH_6_ENABLED: bool = Field(default=True, alias="6_MONTHS_ENABLED")
-    MONTH_12_ENABLED: bool = Field(default=True, alias="12_MONTHS_ENABLED")
-
+    # Legacy monthly subscription fields (kept for compatibility)
+    MONTH_1_ENABLED: bool = Field(default=False, alias="1_MONTH_ENABLED")
+    MONTH_3_ENABLED: bool = Field(default=False, alias="3_MONTHS_ENABLED")
+    MONTH_6_ENABLED: bool = Field(default=False, alias="6_MONTHS_ENABLED")
+    MONTH_12_ENABLED: bool = Field(default=False, alias="12_MONTHS_ENABLED")
     RUB_PRICE_1_MONTH: Optional[int] = Field(default=None)
     RUB_PRICE_3_MONTHS: Optional[int] = Field(default=None)
     RUB_PRICE_6_MONTHS: Optional[int] = Field(default=None)
     RUB_PRICE_12_MONTHS: Optional[int] = Field(default=None)
-
     STARS_PRICE_1_MONTH: Optional[int] = Field(default=None)
     STARS_PRICE_3_MONTHS: Optional[int] = Field(default=None)
     STARS_PRICE_6_MONTHS: Optional[int] = Field(default=None)
     STARS_PRICE_12_MONTHS: Optional[int] = Field(default=None)
     PANEL_WEBHOOK_SECRET: Optional[str] = Field(default=None)
 
+    # Traffic packages: "GB:stars_price:days" e.g. "15:100:15,50:200:30,120:400:30,250:700:60"
     TRAFFIC_PACKAGES: Optional[str] = Field(
         default=None,
-        description="Comma-separated list of traffic packages in the format '<GB>:<price>', e.g. '10:199,50:799'",
+        description="Comma-separated traffic packages: '<GB>:<stars_price>:<days>', e.g. '15:100:15,50:200:30'",
     )
-    STARS_TRAFFIC_PACKAGES: Optional[str] = Field(
-        default=None,
-        description="Comma-separated list of traffic packages priced in Stars, e.g. '5:500,20:1500'",
-    )
+    # Legacy field kept for compatibility
+    STARS_TRAFFIC_PACKAGES: Optional[str] = Field(default=None)
 
     SUBSCRIPTION_NOTIFICATIONS_ENABLED: bool = Field(default=True)
     SUBSCRIPTION_NOTIFY_ON_EXPIRE: bool = Field(default=True)
     SUBSCRIPTION_NOTIFY_AFTER_EXPIRE: bool = Field(default=True)
     SUBSCRIPTION_NOTIFY_DAYS_BEFORE: int = Field(default=3)
 
-    REFERRAL_BONUS_DAYS_INVITER_1_MONTH: Optional[int] = Field(
-        default=3, alias="REFERRAL_BONUS_DAYS_1_MONTH")
-    REFERRAL_BONUS_DAYS_INVITER_3_MONTHS: Optional[int] = Field(
-        default=7, alias="REFERRAL_BONUS_DAYS_3_MONTHS")
-    REFERRAL_BONUS_DAYS_INVITER_6_MONTHS: Optional[int] = Field(
-        default=15, alias="REFERRAL_BONUS_DAYS_6_MONTHS")
-    REFERRAL_BONUS_DAYS_INVITER_12_MONTHS: Optional[int] = Field(
-        default=30, alias="REFERRAL_BONUS_DAYS_12_MONTHS")
+    # Traffic usage notifications
+    TRAFFIC_NOTIFICATION_THRESHOLD: float = Field(
+        default=0.9,
+        description="Send notification when traffic usage reaches this fraction (0.9 = 90%)",
+    )
+    TRAFFIC_NOTIFICATION_CHECK_INTERVAL_MINUTES: int = Field(
+        default=60,
+        description="How often to check traffic usage (minutes)",
+    )
 
+    # Referral bonuses (GB-based)
+    REFERRAL_INVITER_BONUS_GB: float = Field(default=3.0)
+    REFERRAL_INVITER_BONUS_DAYS: int = Field(default=7)
+    REFERRAL_REFEREE_BONUS_GB: float = Field(default=3.0)
+    REFERRAL_REFEREE_BONUS_DAYS: int = Field(default=7)
+
+    # Legacy referral fields (kept for compatibility)
+    REFERRAL_BONUS_DAYS_INVITER_1_MONTH: Optional[int] = Field(
+        default=None, alias="REFERRAL_BONUS_DAYS_1_MONTH")
+    REFERRAL_BONUS_DAYS_INVITER_3_MONTHS: Optional[int] = Field(
+        default=None, alias="REFERRAL_BONUS_DAYS_3_MONTHS")
+    REFERRAL_BONUS_DAYS_INVITER_6_MONTHS: Optional[int] = Field(
+        default=None, alias="REFERRAL_BONUS_DAYS_6_MONTHS")
+    REFERRAL_BONUS_DAYS_INVITER_12_MONTHS: Optional[int] = Field(
+        default=None, alias="REFERRAL_BONUS_DAYS_12_MONTHS")
     REFERRAL_BONUS_DAYS_REFEREE_1_MONTH: Optional[int] = Field(
-        default=1, alias="REFEREE_BONUS_DAYS_1_MONTH")
+        default=None, alias="REFEREE_BONUS_DAYS_1_MONTH")
     REFERRAL_BONUS_DAYS_REFEREE_3_MONTHS: Optional[int] = Field(
-        default=3, alias="REFEREE_BONUS_DAYS_3_MONTHS")
+        default=None, alias="REFEREE_BONUS_DAYS_3_MONTHS")
     REFERRAL_BONUS_DAYS_REFEREE_6_MONTHS: Optional[int] = Field(
-        default=7, alias="REFEREE_BONUS_DAYS_6_MONTHS")
+        default=None, alias="REFEREE_BONUS_DAYS_6_MONTHS")
     REFERRAL_BONUS_DAYS_REFEREE_12_MONTHS: Optional[int] = Field(
-        default=15, alias="REFEREE_BONUS_DAYS_12_MONTHS")
+        default=None, alias="REFEREE_BONUS_DAYS_12_MONTHS")
 
     # Referral program configuration
     REFERRAL_ONE_BONUS_PER_REFEREE: bool = Field(
@@ -216,8 +185,8 @@ class Settings(BaseSettings):
         "UUID of the external squad to assign to new panel users (optional)")
 
     TRIAL_ENABLED: bool = Field(default=True)
-    TRIAL_DURATION_DAYS: int = Field(default=3)
-    TRIAL_TRAFFIC_LIMIT_GB: Optional[float] = Field(default=5.0)
+    TRIAL_DURATION_DAYS: int = Field(default=2)
+    TRIAL_TRAFFIC_LIMIT_GB: Optional[float] = Field(default=1.0)
 
     CRYPT4_ENABLED: bool = Field(default=False, description="Enable happ crypt4 encryption for subscription URLs")
     CRYPT4_REDIRECT_URL: Optional[str] = Field(default=None, description="Base redirect URL used for the connect button when crypt4 is enabled")
@@ -324,18 +293,15 @@ class Settings(BaseSettings):
             return f"{base.rstrip('/')}{self.telegram_webhook_path}"
         return None
 
+    # Legacy webhook paths (kept for compatibility)
     @computed_field
     @property
     def yookassa_webhook_path(self) -> str:
-
         return "/webhook/yookassa"
 
     @computed_field
     @property
     def yookassa_full_webhook_url(self) -> Optional[str]:
-        base = self.WEBHOOK_BASE_URL
-        if base:
-            return f"{base.rstrip('/')}{self.yookassa_webhook_path}"
         return None
 
     @computed_field
@@ -359,9 +325,6 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def cryptopay_full_webhook_url(self) -> Optional[str]:
-        base = self.WEBHOOK_BASE_URL
-        if base:
-            return f"{base.rstrip('/')}{self.cryptopay_webhook_path}"
         return None
 
     @computed_field
@@ -372,9 +335,6 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def freekassa_full_webhook_url(self) -> Optional[str]:
-        base = self.WEBHOOK_BASE_URL
-        if base:
-            return f"{base.rstrip('/')}{self.freekassa_webhook_path}"
         return None
 
     @computed_field
@@ -385,9 +345,6 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def severpay_full_webhook_url(self) -> Optional[str]:
-        base = self.WEBHOOK_BASE_URL
-        if base:
-            return f"{base.rstrip('/')}{self.severpay_webhook_path}"
         return None
 
     @computed_field
@@ -398,26 +355,17 @@ class Settings(BaseSettings):
     @computed_field
     @property
     def platega_full_webhook_url(self) -> Optional[str]:
-        base = self.WEBHOOK_BASE_URL
-        if base:
-            return f"{base.rstrip('/')}{self.platega_webhook_path}"
         return None
 
-    # Effective YooKassa receipt fields.
-    # Explicit .env values win; otherwise keep sensible defaults derived from the recurring toggle.
     @computed_field
     @property
     def yk_receipt_payment_mode(self) -> str:
-        if self.YOOKASSA_PAYMENT_MODE:
-            return self.YOOKASSA_PAYMENT_MODE
-        return "full_payment" if self.YOOKASSA_AUTOPAYMENTS_ENABLED else "full_prepayment"
+        return "full_prepayment"
 
     @computed_field
     @property
     def yk_receipt_payment_subject(self) -> str:
-        if self.YOOKASSA_PAYMENT_SUBJECT:
-            return self.YOOKASSA_PAYMENT_SUBJECT
-        return "service" if self.YOOKASSA_AUTOPAYMENTS_ENABLED else "payment"
+        return "payment"
 
     @computed_field
     @property
@@ -450,24 +398,29 @@ class Settings(BaseSettings):
 
     @computed_field
     @property
-    def traffic_packages(self) -> Dict[float, float]:
+    def traffic_packages_parsed(self) -> List[Dict]:
         """
-        Mapping of traffic size in GB to price in the default currency.
+        Parsed traffic packages: list of {gb: float, price: int, days: int}.
+        Format: "GB:stars_price:days" e.g. "15:100:15,50:200:30"
         """
-        packages: Dict[float, float] = {}
+        packages: List[Dict] = []
         raw = (self.TRAFFIC_PACKAGES or "").strip()
         if not raw:
             return packages
         for part in raw.split(","):
             chunk = part.strip()
-            if not chunk or ":" not in chunk:
+            if not chunk:
                 continue
-            size_str, price_str = chunk.split(":", 1)
+            parts = chunk.split(":")
+            if len(parts) != 3:
+                logging.warning("Invalid TRAFFIC_PACKAGES entry (need GB:price:days): %s", chunk)
+                continue
             try:
-                size_gb = float(size_str.strip())
-                price_val = float(price_str.strip())
-                if size_gb > 0 and price_val >= 0:
-                    packages[size_gb] = price_val
+                size_gb = float(parts[0].strip())
+                price = int(float(parts[1].strip()))
+                days = int(parts[2].strip())
+                if size_gb > 0 and price >= 0 and days > 0:
+                    packages.append({"gb": size_gb, "price": price, "days": days})
             except ValueError:
                 logging.warning("Invalid TRAFFIC_PACKAGES entry skipped: %s", chunk)
                 continue
@@ -475,68 +428,46 @@ class Settings(BaseSettings):
 
     @computed_field
     @property
+    def traffic_packages(self) -> Dict[float, float]:
+        """Legacy compat: GB → price mapping."""
+        return {p["gb"]: float(p["price"]) for p in self.traffic_packages_parsed}
+
+    @computed_field
+    @property
     def stars_traffic_packages(self) -> Dict[float, int]:
-        """
-        Mapping of traffic size in GB to price in Telegram Stars.
-        """
-        packages: Dict[float, int] = {}
-        raw = (self.STARS_TRAFFIC_PACKAGES or "").strip()
-        if not raw:
-            return packages
-        for part in raw.split(","):
-            chunk = part.strip()
-            if not chunk or ":" not in chunk:
-                continue
-            size_str, price_str = chunk.split(":", 1)
-            try:
-                size_gb = float(size_str.strip())
-                price_val = int(float(price_str.strip()))
-                if size_gb > 0 and price_val >= 0:
-                    packages[size_gb] = price_val
-            except ValueError:
-                logging.warning("Invalid STARS_TRAFFIC_PACKAGES entry skipped: %s", chunk)
-                continue
-        return packages
+        """GB → stars price mapping (from new unified format)."""
+        return {p["gb"]: p["price"] for p in self.traffic_packages_parsed}
 
     @computed_field
     @property
     def traffic_sale_mode(self) -> bool:
         """When true, the bot sells traffic packages instead of time-based subscriptions."""
-        return bool(self.traffic_packages or self.stars_traffic_packages)
+        return bool(self.traffic_packages_parsed)
 
     @computed_field
     @property
-    def referral_bonus_inviter(self) -> Dict[int, int]:
-        bonuses: Dict[int, int] = {}
-        if self.REFERRAL_BONUS_DAYS_INVITER_1_MONTH is not None:
-            bonuses[1] = self.REFERRAL_BONUS_DAYS_INVITER_1_MONTH
-        if self.REFERRAL_BONUS_DAYS_INVITER_3_MONTHS is not None:
-            bonuses[3] = self.REFERRAL_BONUS_DAYS_INVITER_3_MONTHS
-        if self.REFERRAL_BONUS_DAYS_INVITER_6_MONTHS is not None:
-            bonuses[6] = self.REFERRAL_BONUS_DAYS_INVITER_6_MONTHS
-        if self.REFERRAL_BONUS_DAYS_INVITER_12_MONTHS is not None:
-            bonuses[12] = self.REFERRAL_BONUS_DAYS_INVITER_12_MONTHS
-        return bonuses
+    def referral_bonus_inviter(self) -> Dict[str, any]:
+        """Inviter bonus: {gb: float, days: int}"""
+        return {"gb": self.REFERRAL_INVITER_BONUS_GB, "days": self.REFERRAL_INVITER_BONUS_DAYS}
 
     @computed_field
     @property
-    def referral_bonus_referee(self) -> Dict[int, int]:
-        bonuses: Dict[int, int] = {}
-        if self.REFERRAL_BONUS_DAYS_REFEREE_1_MONTH is not None:
-            bonuses[1] = self.REFERRAL_BONUS_DAYS_REFEREE_1_MONTH
-        if self.REFERRAL_BONUS_DAYS_REFEREE_3_MONTHS is not None:
-            bonuses[3] = self.REFERRAL_BONUS_DAYS_REFEREE_3_MONTHS
-        if self.REFERRAL_BONUS_DAYS_REFEREE_6_MONTHS is not None:
-            bonuses[6] = self.REFERRAL_BONUS_DAYS_REFEREE_6_MONTHS
-        if self.REFERRAL_BONUS_DAYS_REFEREE_12_MONTHS is not None:
-            bonuses[12] = self.REFERRAL_BONUS_DAYS_REFEREE_12_MONTHS
-        return bonuses
+    def referral_bonus_referee(self) -> Dict[str, any]:
+        """Referee bonus: {gb: float, days: int}"""
+        return {"gb": self.REFERRAL_REFEREE_BONUS_GB, "days": self.REFERRAL_REFEREE_BONUS_DAYS}
+
+    def get_traffic_package(self, gb: float) -> Optional[Dict]:
+        """Get package details by GB amount."""
+        for p in self.traffic_packages_parsed:
+            if p["gb"] == gb:
+                return p
+        return None
 
     @computed_field
     @property
     def yookassa_autopayments_active(self) -> bool:
         """Autopay features are available only when YooKassa itself is enabled."""
-        return bool(self.YOOKASSA_ENABLED and self.YOOKASSA_AUTOPAYMENTS_ENABLED)
+        return False
 
     @computed_field
     @property
@@ -722,50 +653,10 @@ def get_settings() -> Settings:
                     "WARNING: TELEGRAM_WEBHOOK_SECRET is empty while webhook mode is enabled. "
                     "Set TELEGRAM_WEBHOOK_SECRET to validate X-Telegram-Bot-Api-Secret-Token header."
                 )
-            if not _settings_instance.YOOKASSA_SHOP_ID or not _settings_instance.YOOKASSA_SECRET_KEY:
+            if not _settings_instance.traffic_packages_parsed:
                 logging.warning(
-                    "CRITICAL: YooKassa credentials (SHOP_ID or SECRET_KEY) are not set. Payments will not work."
+                    "WARNING: TRAFFIC_PACKAGES is not set. Users will not see any packages to buy."
                 )
-            if (
-                _settings_instance.LKNPD_INN
-                or _settings_instance.LKNPD_PASSWORD
-            ) and not (
-                _settings_instance.LKNPD_INN
-                and _settings_instance.LKNPD_PASSWORD
-            ):
-                logging.warning(
-                    "WARNING: LKNPD credentials are incomplete. Receipt sending will be disabled."
-                )
-            if _settings_instance.FREEKASSA_ENABLED:
-                if (
-                    not _settings_instance.FREEKASSA_MERCHANT_ID
-                    or not _settings_instance.FREEKASSA_API_KEY
-                ):
-                    logging.warning(
-                        "CRITICAL: FreeKassa is enabled but SHOP_ID or API key is missing. FreeKassa payments will not work."
-                    )
-                if not _settings_instance.FREEKASSA_SECOND_SECRET:
-                    logging.warning(
-                        "WARNING: FreeKassa second secret is not set. Incoming payment notifications cannot be verified."
-                    )
-                if not _settings_instance.subscription_options:
-                    logging.warning(
-                        "CRITICAL: FreeKassa is enabled but no subscription prices are configured (RUB_PRICE_*). Users will not see payment buttons."
-                    )
-
-            if _settings_instance.PLATEGA_ENABLED:
-                if (
-                    not _settings_instance.PLATEGA_MERCHANT_ID
-                    or not _settings_instance.PLATEGA_SECRET
-                ):
-                    logging.warning(
-                        "CRITICAL: Platega is enabled but merchant credentials (PLATEGA_MERCHANT_ID/PLATEGA_SECRET) are missing. Platega payments will not work."
-                    )
-            if _settings_instance.SEVERPAY_ENABLED:
-                if not _settings_instance.SEVERPAY_MID or not _settings_instance.SEVERPAY_TOKEN:
-                    logging.warning(
-                        "CRITICAL: SeverPay is enabled but MID or TOKEN is missing. SeverPay payments will not work."
-                    )
 
         except ValidationError as e:
             logging.critical(

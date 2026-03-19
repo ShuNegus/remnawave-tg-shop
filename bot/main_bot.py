@@ -157,6 +157,23 @@ async def on_startup_configured(dispatcher: Dispatcher):
             exc_info=True,
         )
 
+    # Initialize traffic notification worker
+    try:
+        if settings.traffic_sale_mode and settings.SUBSCRIPTION_NOTIFICATIONS_ENABLED:
+            from bot.services.traffic_notification_worker import TrafficNotificationWorker
+            traffic_worker = TrafficNotificationWorker(
+                bot=dispatcher.get("bot") or dispatcher["bot"],
+                settings=settings,
+                i18n=i18n_instance,
+                panel_service=panel_service,
+                session_factory=async_session_factory,
+            )
+            await traffic_worker.start()
+            dispatcher["traffic_notification_worker"] = traffic_worker
+            logging.info("STARTUP: Traffic notification worker initialized")
+    except Exception as e:
+        logging.error(f"STARTUP: Failed to initialize traffic notification worker: {e}", exc_info=True)
+
     # Automatic sync on startup
     try:
         logging.info("STARTUP: Running automatic panel sync...")
@@ -202,6 +219,11 @@ async def on_shutdown_configured(dispatcher: Dispatcher):
                     logging.info(f"{key} session closed on shutdown.")
                 except Exception as e:
                     logging.warning(f"Failed to close session for {key}: {e}")
+
+    # Stop traffic notification worker
+    traffic_worker = dispatcher.get("traffic_notification_worker")
+    if traffic_worker:
+        await traffic_worker.stop()
 
     for service_key in (
         "panel_service",
@@ -290,7 +312,7 @@ async def run_bot(settings_param: Settings):
 
     logging.info(f"--- Bot Run Mode Decision ---")
     logging.info(f"Configured WEBHOOK_BASE_URL: '{tg_webhook_base}' -> Webhook Mode: ENABLED")
-    logging.info(f"YooKassa webhook path: '{settings_param.yookassa_webhook_path}'")
+    logging.info(f"Panel webhook path: '{settings_param.panel_webhook_path}'")
     logging.info(f"Decision: Run AIOHTTP server: ENABLED (required for webhooks)")
     logging.info(f"--- End Bot Run Mode Decision ---")
 

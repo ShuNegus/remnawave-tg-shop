@@ -106,8 +106,18 @@ async def display_subscription_options(
 
     if display_options:
         text_content = get_text("select_traffic_package") if traffic_mode else get_text("select_subscription_period")
+        # Check if user has a legacy monthly subscription
+        has_legacy_sub = False
+        if traffic_mode:
+            active_sub = await subscription_dal.get_active_subscription_by_user_id(
+                session, event.from_user.id
+            )
+            has_legacy_sub = bool(
+                active_sub and active_sub.duration_months and active_sub.duration_months > 0
+            )
         reply_markup = get_subscription_options_keyboard(
-            display_options, currency_symbol_val, current_lang, i18n, traffic_mode=traffic_mode
+            display_options, currency_symbol_val, current_lang, i18n, traffic_mode=traffic_mode,
+            settings=settings, has_legacy_sub=has_legacy_sub,
         )
     else:
         text_content = get_text("no_subscription_options_available")
@@ -146,6 +156,68 @@ async def reshow_subscription_options_callback(
     await display_subscription_options(
         callback, i18n_data, settings, session, promo_code_service=promo_code_service
     )
+
+
+@router.callback_query(F.data.startswith("legacy_check:"))
+async def legacy_migration_check_handler(
+    callback: types.CallbackQuery,
+    i18n_data: dict,
+    settings: Settings,
+    session: AsyncSession,
+):
+    """Intercept package purchase when user has a legacy monthly subscription.
+
+    Called with callback_data = "legacy_check:pay_stars:{gb}:{price}:traffic"
+    Shows a warning and offers confirm/cancel.
+    """
+    current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
+    i18n: Optional[JsonI18n] = i18n_data.get("i18n_instance")
+    get_text = lambda key, **kw: i18n.gettext(current_lang, key, **kw) if i18n else key
+
+    # Extract original pay_stars data
+    original_data = callback.data[len("legacy_check:"):]  # "pay_stars:{gb}:{price}:traffic"
+    try:
+        parts = original_data.split(":")
+        gb = float(parts[1])
+        package = settings.get_traffic_package(gb)
+        days = package["days"] if package else 30
+    except (IndexError, ValueError, TypeError):
+        await callback.answer(get_text("error_try_again"), show_alert=True)
+        return
+
+    # Check if user actually has a legacy sub
+    active_sub = await subscription_dal.get_active_subscription_by_user_id(session, callback.from_user.id)
+    if not active_sub or not active_sub.duration_months or active_sub.duration_months <= 0:
+        # No legacy sub — proceed directly to Stars payment
+        callback.data = original_data
+        return
+
+    end_date_str = active_sub.end_date.strftime("%d.%m.%Y") if active_sub.end_date else "N/A"
+    gb_str = str(int(gb)) if float(gb).is_integer() else f"{gb:g}"
+
+    text = get_text(
+        "legacy_migration_warning",
+        end_date=end_date_str,
+        gb=gb_str,
+        days=days,
+    )
+
+    kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(
+            text=get_text("legacy_confirm_button"),
+            callback_data=original_data,  # Will be handled by pay_stars handler
+        )],
+        [InlineKeyboardButton(
+            text=get_text("cancel_button"),
+            callback_data="main_action:subscribe",
+        )],
+    ])
+
+    try:
+        await callback.message.edit_text(text, reply_markup=kb, parse_mode="HTML")
+    except Exception:
+        await callback.message.answer(text, reply_markup=kb, parse_mode="HTML")
+    await callback.answer()
 
 
 async def my_subscription_command_handler(
@@ -217,20 +289,24 @@ async def my_subscription_command_handler(
         limit_display = _fmt_gb(active.get("traffic_limit_bytes"))
         used_display = _fmt_gb(active.get("traffic_used_bytes"))
         remaining_display = get_text("traffic_na")
+        usage_pct = 0
         try:
             limit_val = active.get("traffic_limit_bytes") or 0
             used_val = active.get("traffic_used_bytes") or 0
             remaining_val = max(0, float(limit_val) - float(used_val))
             remaining_display = _fmt_gb(remaining_val)
+            usage_pct = int(float(used_val) / float(limit_val) * 100) if limit_val > 0 else 0
         except Exception as exc:
             logging.debug("Suppressed exception in bot/handlers/user/subscription/core.py: %s", exc)
         text = get_text(
             "my_traffic_details",
             status=active.get("status_from_panel", get_text("status_active")).capitalize(),
-            end_date=end_date.strftime("%Y-%m-%d") if end_date else get_text("traffic_no_expiry"),
+            end_date=end_date.strftime("%d.%m.%Y") if end_date else get_text("traffic_no_expiry"),
+            days_left=max(0, days_left),
             traffic_limit=limit_display,
             traffic_used=used_display,
             traffic_left=remaining_display,
+            usage_pct=usage_pct,
             config_link=config_link_value,
         )
     else:
@@ -322,22 +398,13 @@ async def my_subscription_command_handler(
                 )
             ])
 
-        # 2) Auto-renew toggle (YooKassa only)
-        if not traffic_mode and local_sub and local_sub.provider == "yookassa" and settings.yookassa_autopayments_active:
-            toggle_text = (
-                get_text("autorenew_disable_button") if local_sub.auto_renew_enabled else get_text("autorenew_enable_button")
-            )
+        # 2) "Buy more GB" button in traffic mode
+        if traffic_mode:
             prepend_rows.append([
                 InlineKeyboardButton(
-                    text=toggle_text,
-                    callback_data=f"toggle_autorenew:{local_sub.subscription_id}:{1 if not local_sub.auto_renew_enabled else 0}",
+                    text=get_text("buy_more_gb_button"),
+                    callback_data="main_action:subscribe",
                 )
-            ])
-
-        # 3) Payment methods management (when autopayments enabled)
-        if not traffic_mode and settings.yookassa_autopayments_active:
-            prepend_rows.append([
-                InlineKeyboardButton(text=get_text("payment_methods_manage_button"), callback_data="pm:manage")
             ])
 
         if prepend_rows:
