@@ -164,8 +164,9 @@ class PromoCode(Base):
     promo_type = Column(String, nullable=False, default="bonus_days", index=True)
     # Values: "bonus_days" or "discount"
 
-    # For bonus_days type: number of days to add to subscription
+    # For bonus_days type: number of days and GB to add
     bonus_days = Column(Integer, nullable=True)
+    bonus_gb = Column(Integer, nullable=True)
 
     # For discount type: percentage discount (1-100)
     discount_percentage = Column(Integer, nullable=True)

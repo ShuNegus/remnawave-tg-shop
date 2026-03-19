@@ -163,13 +163,26 @@ class PromoCodeService:
             return False, _("promo_code_already_used_by_user",
                             code=code_input_upper)
 
-        bonus_days = promo_data.bonus_days
+        bonus_days = promo_data.bonus_days or 0
+        bonus_gb = getattr(promo_data, "bonus_gb", None) or 0
 
-        new_end_date = await self.subscription_service.extend_active_subscription_days(
-            session=session,
-            user_id=user_id,
-            bonus_days=bonus_days,
-            reason=f"promo code {code_input_upper}")
+        # If promo has GB — use traffic package activation
+        if bonus_gb > 0 and bonus_days > 0:
+            result = await self.subscription_service._activate_traffic_package(
+                session=session,
+                user_id=user_id,
+                traffic_gb=float(bonus_gb),
+                provider="promo",
+                override_days=bonus_days,
+            )
+            new_end_date = result.get("end_date") if result else None
+        else:
+            # Legacy: days-only promo
+            new_end_date = await self.subscription_service.extend_active_subscription_days(
+                session=session,
+                user_id=user_id,
+                bonus_days=bonus_days,
+                reason=f"promo code {code_input_upper}")
 
         if new_end_date:
             activation_recorded = await promo_code_dal.record_promo_activation(
@@ -178,7 +191,6 @@ class PromoCodeService:
                 session, promo_data.promo_code_id)
 
             if activation_recorded and promo_incremented:
-                # Send notification about promo activation
                 try:
                     notification_service = NotificationService(self.bot, self.settings, self.i18n)
                     user = await user_dal.get_user_by_id(session, user_id)
@@ -190,7 +202,7 @@ class PromoCodeService:
                     )
                 except Exception as e:
                     logging.error(f"Failed to send promo activation notification: {e}")
-                
+
                 return True, new_end_date
             else:
 
