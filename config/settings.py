@@ -446,13 +446,13 @@ class Settings(BaseSettings):
 
     @computed_field
     @property
-    def referral_bonus_inviter(self) -> Dict[str, any]:
+    def referral_bonus_inviter(self) -> Dict[str, Any]:
         """Inviter bonus: {gb: float, days: int}"""
         return {"gb": self.REFERRAL_INVITER_BONUS_GB, "days": self.REFERRAL_INVITER_BONUS_DAYS}
 
     @computed_field
     @property
-    def referral_bonus_referee(self) -> Dict[str, any]:
+    def referral_bonus_referee(self) -> Dict[str, Any]:
         """Referee bonus: {gb: float, days: int}"""
         return {"gb": self.REFERRAL_REFEREE_BONUS_GB, "days": self.REFERRAL_REFEREE_BONUS_DAYS}
 
