@@ -99,6 +99,7 @@
   "friend_placeholder": "друг",
   "referral_bonus_inviter_notification_extended": "🎉 Поздравляем! Ваш друг {referee_name} оплатил подписку. Вам начислено {days} бонусных дней! Ваша подписка теперь активна до {new_end_date}.",
   "referral_bonus_inviter_notification_new_sub": "🎉 Поздравляем! Ваш друг {referee_name} оплатил подписку. Вам начислена бонусная подписка на {days} дней! Она активна до {new_end_date}.",
+  "referral_bonus_inviter_notification_traffic": "🎉 Ваш друг {referee_name} оплатил подписку! Вам начислено {gb} ГБ на {days} дней.",
   "user_is_banned": "🚫 Ваш аккаунт заблокирован. Пожалуйста, свяжитесь со службой поддержки.",
   "admin_panel_title": "Панель администратора",
   "admin_stats_button": "📊 Статистика",

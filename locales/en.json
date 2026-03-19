@@ -98,6 +98,7 @@
   "friend_placeholder": "friend",
   "referral_bonus_inviter_notification_extended": "🎉 Congrats! Your friend {referee_name} paid for a subscription. You received {days} bonus days! Your subscription is now active until {new_end_date}.",
   "referral_bonus_inviter_notification_new_sub": "🎉 Congrats! Your friend {referee_name} paid for a subscription. You received a {days}-day bonus subscription! It is active until {new_end_date}.",
+  "referral_bonus_inviter_notification_traffic": "🎉 Your friend {referee_name} paid for a subscription! You received {gb} GB for {days} days.",
   "user_is_banned": "🚫 Your account is banned. Please contact support.",
   "admin_panel_title": "Admin Panel",
   "admin_stats_button": "📊 Statistics",

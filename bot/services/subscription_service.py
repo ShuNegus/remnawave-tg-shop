@@ -426,13 +426,14 @@ class SubscriptionService:
         session: AsyncSession,
         user_id: int,
         traffic_gb: float,
-        payment_amount: float,
-        payment_db_id: int,
+        payment_amount: float = 0,
+        payment_db_id: int = 0,
         provider: str = "stars",
+        override_days: Optional[int] = None,
     ) -> Optional[Dict[str, Any]]:
         """Activate or extend a traffic-based package.
 
-        - Looks up package days from settings (by GB key)
+        - Looks up package days from settings (by GB key), or uses override_days
         - If user has old monthly sub (duration_months > 0): resets traffic, starts fresh
         - If user has active traffic sub: stacks GB, extends deadline = max(current, now + days)
         - If no active sub: creates new sub with purchased GB and days
@@ -450,9 +451,12 @@ class SubscriptionService:
             logging.error("Failed to ensure panel linkage for user %s during traffic activation", user_id)
             return None
 
-        # Determine days from package config
-        package_info = self.settings.get_traffic_package(traffic_gb)
-        package_days = package_info["days"] if package_info else 30
+        # Determine days from package config or override
+        if override_days is not None:
+            package_days = override_days
+        else:
+            package_info = self.settings.get_traffic_package(traffic_gb)
+            package_days = package_info["days"] if package_info else 30
 
         purchase_bytes = int(float(traffic_gb) * (1024**3))
         now = datetime.now(timezone.utc)
