@@ -101,8 +101,8 @@ async def on_startup_configured(dispatcher: Dispatcher):
                 exc_info=True,
             )
     else:
-        logging.info(
-            "STARTUP: WEBHOOK_BASE_URL not set. Running in polling mode."
+        logging.warning(
+            "STARTUP: WEBHOOK_BASE_URL not set. Webhook will not be configured."
         )
 
     if settings.SUBSCRIPTION_MINI_APP_URL:
@@ -302,41 +302,46 @@ async def run_bot(settings_param: Settings):
 
     tg_webhook_base = settings_param.WEBHOOK_BASE_URL
 
-    if tg_webhook_base:
-        # Webhook mode
-        logging.info(f"--- Bot Run Mode: WEBHOOK ---")
-        logging.info(f"Configured WEBHOOK_BASE_URL: '{tg_webhook_base}'")
-        logging.info(f"Panel webhook path: '{settings_param.panel_webhook_path}'")
+    if not tg_webhook_base:
+        logging.error("WEBHOOK_BASE_URL is required. Polling mode is disabled. Exiting.")
+        await dp.emit_shutdown()
+        raise SystemExit("WEBHOOK_BASE_URL is required. Polling mode is disabled.")
 
-        main_tasks = []
+    logging.info(f"--- Bot Run Mode Decision ---")
+    logging.info(f"Configured WEBHOOK_BASE_URL: '{tg_webhook_base}' -> Webhook Mode: ENABLED")
+    logging.info(f"Panel webhook path: '{settings_param.panel_webhook_path}'")
+    logging.info(f"--- End Bot Run Mode Decision ---")
 
-        async def web_server_task():
-            await build_and_start_web_app(dp, bot, settings_param, local_async_session_factory)
+    web_app_runner = None
+    main_tasks = []
 
-        main_tasks.append(asyncio.create_task(web_server_task(), name="AIOHTTPServerTask"))
+    async def web_server_task():
+        await build_and_start_web_app(dp, bot, settings_param, local_async_session_factory)
 
-        logging.info("Starting bot in Webhook mode with AIOHTTP server...")
-        try:
-            await asyncio.gather(*main_tasks)
-        except (KeyboardInterrupt, SystemExit, asyncio.CancelledError) as e:
-            logging.info(f"Main bot loop interrupted/cancelled: {type(e).__name__} - {e}")
-        finally:
-            logging.info("Initiating final bot shutdown sequence...")
-            for task in main_tasks:
-                if task and not task.done():
-                    task.cancel()
-                    try:
-                        await task
-                    except asyncio.CancelledError:
-                        logging.info(f"Task '{task.get_name()}' was cancelled successfully.")
-                    except Exception as e_task_cancel:
-                        logging.error(f"Error during cancellation of task '{task.get_name()}': {e_task_cancel}", exc_info=True)
-    else:
-        # Polling mode (for development/testing)
-        logging.info("--- Bot Run Mode: POLLING ---")
-        logging.info("WEBHOOK_BASE_URL not set, starting in polling mode...")
-        await bot.delete_webhook(drop_pending_updates=True)
-        await dp.start_polling(bot, allowed_updates=dp.resolve_used_update_types())
+    main_tasks.append(asyncio.create_task(web_server_task(), name="AIOHTTPServerTask"))
+
+    logging.info("Starting bot in Webhook mode with AIOHTTP server...")
+    logging.info(f"Starting bot with main tasks: {[task.get_name() for task in main_tasks]}")
+
+    try:
+        await asyncio.gather(*main_tasks)
+    except (KeyboardInterrupt, SystemExit, asyncio.CancelledError) as e:
+        logging.info(f"Main bot loop interrupted/cancelled: {type(e).__name__} - {e}")
+    finally:
+        logging.info("Initiating final bot shutdown sequence...")
+        for task in main_tasks:
+            if task and not task.done():
+                task.cancel()
+                try:
+                    await task
+                except asyncio.CancelledError:
+                    logging.info(f"Task '{task.get_name()}' was cancelled successfully.")
+                except Exception as e_task_cancel:
+                    logging.error(f"Error during cancellation of task '{task.get_name()}': {e_task_cancel}", exc_info=True)
+
+        if web_app_runner:
+            await web_app_runner.cleanup()
+            logging.info("AIOHTTP AppRunner cleaned up.")
 
         await dp.emit_shutdown()
         logging.info("Dispatcher shutdown sequence emitted.")
