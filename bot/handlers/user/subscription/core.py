@@ -107,7 +107,8 @@ async def display_subscription_options(
     if display_options:
         text_content = get_text("select_traffic_package") if traffic_mode else get_text("select_subscription_period")
         reply_markup = get_subscription_options_keyboard(
-            display_options, currency_symbol_val, current_lang, i18n, traffic_mode=traffic_mode
+            display_options, currency_symbol_val, current_lang, i18n, traffic_mode=traffic_mode,
+            settings=settings,
         )
     else:
         text_content = get_text("no_subscription_options_available")
