@@ -358,6 +358,7 @@ class SubscriptionService:
             "is_active": True,
             "status_from_panel": "TRIAL",
             "traffic_limit_bytes": self.settings.trial_traffic_limit_bytes,
+            "skip_notifications": False,
             "auto_renew_enabled": False,
         }
         try:
