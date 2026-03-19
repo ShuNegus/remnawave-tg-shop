@@ -427,9 +427,15 @@ class SubscriptionService:
         traffic_gb: float,
         payment_amount: float,
         payment_db_id: int,
-        provider: str = "yookassa",
+        provider: str = "stars",
     ) -> Optional[Dict[str, Any]]:
-        """Activate or extend a traffic-based package instead of a time-based subscription."""
+        """Activate or extend a traffic-based package.
+
+        - Looks up package days from settings (by GB key)
+        - If user has old monthly sub (duration_months > 0): resets traffic, starts fresh
+        - If user has active traffic sub: stacks GB, extends deadline = max(current, now + days)
+        - If no active sub: creates new sub with purchased GB and days
+        """
         db_user = await user_dal.get_user_by_id(session, user_id)
         if not db_user:
             logging.error("User %s not found for traffic package activation", user_id)
@@ -443,28 +449,36 @@ class SubscriptionService:
             logging.error("Failed to ensure panel linkage for user %s during traffic activation", user_id)
             return None
 
-        panel_user_data = await self.panel_service.get_user_by_uuid(panel_user_uuid) or {}
-        traffic_info = panel_user_data.get("userTraffic") or {}
-        current_limit = panel_user_data.get("trafficLimitBytes")
-        current_used = traffic_info.get("usedTrafficBytes")
+        # Determine days from package config
+        package_info = self.settings.get_traffic_package(traffic_gb)
+        package_days = package_info["days"] if package_info else 30
+
+        purchase_bytes = int(float(traffic_gb) * (1024**3))
+        now = datetime.now(timezone.utc)
 
         active_sub = await subscription_dal.get_active_subscription_by_user_id(
             session, user_id, panel_user_uuid
         )
-        if current_limit is None and active_sub:
-            current_limit = active_sub.traffic_limit_bytes
-        if current_used is None and active_sub:
-            current_used = active_sub.traffic_used_bytes
 
-        purchase_bytes = int(float(traffic_gb) * (1024**3))
-        new_limit = (current_limit or 0) + purchase_bytes
+        is_legacy_migration = (
+            active_sub
+            and active_sub.duration_months is not None
+            and active_sub.duration_months > 0
+        )
 
-        start_date = datetime.now(timezone.utc)
-        # Set a far-future expiry to satisfy panel requirements; keep the latest known expiry if it's further.
-        far_future = datetime(2099, 1, 1, tzinfo=timezone.utc)
-        final_end_date = far_future
-        if active_sub and active_sub.end_date and active_sub.end_date > final_end_date:
-            final_end_date = active_sub.end_date
+        if is_legacy_migration or not active_sub:
+            # Fresh start: reset traffic, new limit = purchased GB
+            await self.panel_service.reset_user_traffic(panel_user_uuid)
+            new_limit = purchase_bytes
+            final_end_date = now + timedelta(days=package_days)
+        else:
+            # Stack on existing traffic package
+            panel_user_data = await self.panel_service.get_user_by_uuid(panel_user_uuid) or {}
+            current_limit = panel_user_data.get("trafficLimitBytes") or 0
+            new_limit = current_limit + purchase_bytes
+            package_end_date = now + timedelta(days=package_days)
+            current_end = active_sub.end_date if active_sub.end_date else now
+            final_end_date = max(current_end, package_end_date)
 
         await subscription_dal.deactivate_other_active_subscriptions(
             session, panel_user_uuid, panel_sub_link_id
@@ -474,15 +488,15 @@ class SubscriptionService:
             "user_id": user_id,
             "panel_user_uuid": panel_user_uuid,
             "panel_subscription_uuid": panel_sub_link_id,
-            "start_date": start_date,
+            "start_date": now,
             "end_date": final_end_date,
             "duration_months": 0,
             "is_active": True,
             "status_from_panel": "ACTIVE",
             "traffic_limit_bytes": new_limit,
-            "traffic_used_bytes": current_used,
+            "traffic_used_bytes": 0 if (is_legacy_migration or not active_sub) else None,
             "provider": provider,
-            "skip_notifications": True,
+            "skip_notifications": False,
             "auto_renew_enabled": False,
         }
 
