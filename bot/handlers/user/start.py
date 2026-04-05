@@ -725,7 +725,8 @@ async def main_action_callback_handler(
         callback: types.CallbackQuery, state: FSMContext, settings: Settings,
         i18n_data: dict, bot: Bot, subscription_service: SubscriptionService,
         referral_service: ReferralService, panel_service: PanelApiService,
-        promo_code_service: PromoCodeService, session: AsyncSession):
+        promo_code_service: PromoCodeService, session: AsyncSession,
+        proxy_service=None):
     action = callback.data.split(":")[1]
     user_id = callback.from_user.id
     current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
@@ -776,6 +777,9 @@ async def main_action_callback_handler(
                              subscription_service,
                              session,
                              is_edit=True)
+    elif action == "proxy":
+        from .proxy.core import proxy_menu_handler
+        await proxy_menu_handler(callback, settings, i18n_data, session, proxy_service)
     elif action == "back_to_main_keep":
         await send_main_menu(callback,
                              settings,
