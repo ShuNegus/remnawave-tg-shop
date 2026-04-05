@@ -524,5 +524,23 @@
   "no_bonus_placeholder": "нет",
   "payment_successful_with_promo_full": "✅ Оплата прошла успешно!\nВаша подписка на {months} мес. продлена на {bonus_days} бонусных дней по промокоду и активна до {end_date}.\n\nКлюч подключения:\n<code>{config_link}</code>\n\nЧтобы подключиться, перейдите по ссылке и следуйте инструкции 👇",
   "system_or_unknown_user": "Система/неизвестный пользователь",
-  "free_kassa_order_full": "Заказ №{order_id} от {date}\n\n"
+  "free_kassa_order_full": "Заказ №{order_id} от {date}\n\n",
+
+  "menu_proxy_button": "🔒 TG Прокси",
+  "proxy_status_message": "🔒 <b>Ваш TG прокси</b>\n\nТрафик: {used} / {limit} ({pct}%)\nДействует до: {end_date}",
+  "proxy_no_active_message": "У вас нет активного TG прокси.\nВыберите пакет для покупки:",
+  "proxy_copy_link_button": "📋 Скопировать ссылку",
+  "proxy_buy_button": "🛒 Купить прокси",
+  "proxy_buy_more_button": "🛒 Докупить пакет",
+  "proxy_promo_button": "🎁 Бесплатно {gb} ГБ",
+  "proxy_select_package": "Выберите пакет TG прокси:",
+  "proxy_package_button": "📦 {gb} ГБ / {days} дн. — {price} ⭐",
+  "proxy_no_packages": "Пакеты прокси не настроены.",
+  "proxy_payment_description": "TG Прокси {gb} ГБ на {days} дн.",
+  "proxy_invoice_sent": "Счёт на TG Прокси {gb} ГБ / {days} дн. отправлен выше. Нажмите «Оплатить».",
+  "proxy_payment_success": "✅ Оплата прошла успешно!\n\nВаш TG прокси <b>{gb} ГБ</b> активирован на <b>{days} дн.</b>\nДействует до: {end_date}\n\nСсылка для подключения:\n<code>{link}</code>\n\nНажмите на ссылку или скопируйте её 👆",
+  "proxy_activation_error": "❌ Ошибка активации прокси. Обратитесь в поддержку.",
+  "proxy_link_message": "🔒 Ваша ссылка на TG прокси:\n\n<code>{link}</code>\n\nНажмите на ссылку чтобы подключиться.",
+  "proxy_promo_success": "🎁 Промо активировано!\n\nВаш бесплатный TG прокси: <b>{gb} ГБ</b> на <b>{days} дн.</b>\n\nСсылка для подключения:\n<code>{link}</code>",
+  "proxy_promo_not_eligible": "Промо недоступно. Нужна VPN подписка или вы уже получали промо."
 }

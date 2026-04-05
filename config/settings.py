@@ -118,6 +118,18 @@ class Settings(BaseSettings):
     # Legacy field kept for compatibility
     STARS_TRAFFIC_PACKAGES: Optional[str] = Field(default=None)
 
+    # MTProto Proxy
+    PROXY_ENABLED: bool = Field(default=False)
+    PROXY_AGENT_URL: Optional[str] = Field(default=None, description="URL of mtg-agent API, e.g. http://158.160.80.72:8443")
+    PROXY_AGENT_TOKEN: Optional[str] = Field(default=None, description="Bearer token for mtg-agent API")
+    PROXY_PACKAGES: Optional[str] = Field(
+        default=None,
+        description="Comma-separated proxy packages: '<GB>:<stars_price>:<days>', e.g. '5:50:30,15:120:30'",
+    )
+    PROXY_PROMO_FREE_GB: float = Field(default=5.0)
+    PROXY_PROMO_FREE_DAYS: int = Field(default=30)
+    PROXY_TRAFFIC_CHECK_INTERVAL_MINUTES: int = Field(default=30)
+
     SUBSCRIPTION_NOTIFICATIONS_ENABLED: bool = Field(default=True)
     SUBSCRIPTION_NOTIFY_ON_EXPIRE: bool = Field(default=True)
     SUBSCRIPTION_NOTIFY_AFTER_EXPIRE: bool = Field(default=True)
@@ -443,6 +455,33 @@ class Settings(BaseSettings):
     def traffic_sale_mode(self) -> bool:
         """When true, the bot sells traffic packages instead of time-based subscriptions."""
         return bool(self.traffic_packages_parsed)
+
+    @computed_field
+    @property
+    def proxy_packages_parsed(self) -> List[Dict]:
+        """Parsed proxy packages: list of {gb: float, price: int, days: int}."""
+        packages: List[Dict] = []
+        raw = (self.PROXY_PACKAGES or "").strip()
+        if not raw:
+            return packages
+        for part in raw.split(","):
+            chunk = part.strip()
+            if not chunk:
+                continue
+            parts = chunk.split(":")
+            if len(parts) != 3:
+                logging.warning("Invalid PROXY_PACKAGES entry (need GB:price:days): %s", chunk)
+                continue
+            try:
+                size_gb = float(parts[0].strip())
+                price = int(float(parts[1].strip()))
+                days = int(parts[2].strip())
+                if size_gb > 0 and price >= 0 and days > 0:
+                    packages.append({"gb": size_gb, "price": price, "days": days})
+            except ValueError:
+                logging.warning("Invalid PROXY_PACKAGES entry skipped: %s", chunk)
+                continue
+        return packages
 
     @computed_field
     @property

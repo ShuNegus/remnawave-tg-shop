@@ -16,6 +16,7 @@ from bot.services.freekassa_service import FreeKassaService
 from bot.services.platega_service import PlategaService
 from bot.services.severpay_service import SeverPayService
 from bot.services.lknpd_service import LknpdService
+from bot.services.proxy_service import ProxyService
 
 
 def build_core_services(
@@ -80,6 +81,8 @@ def build_core_services(
         api_url=settings.LKNPD_API_URL,
     )
 
+    proxy_service = ProxyService(settings, bot) if settings.PROXY_ENABLED else None
+
     # Wire services that depend on each other
     try:
         # Allow subscription service to consume promo codes
@@ -104,4 +107,5 @@ def build_core_services(
         "lknpd_service": lknpd_service,
         "platega_service": platega_service,
         "severpay_service": severpay_service,
+        "proxy_service": proxy_service,
     }

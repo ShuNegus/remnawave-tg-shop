@@ -523,5 +523,23 @@
   "no_bonus_placeholder": "none",
   "payment_successful_with_promo_full": "✅ Payment successful!\nYour {months}-month subscription has been extended by {bonus_days} bonus days via promo code and is active until {end_date}.\n\nConnection key:\n<code>{config_link}</code>\n\nTo connect, open the link and follow the instructions 👇",
   "system_or_unknown_user": "System/unknown user",
-  "free_kassa_order_full": "Order #{order_id} from {date}\n\n"
+  "free_kassa_order_full": "Order #{order_id} from {date}\n\n",
+
+  "menu_proxy_button": "🔒 TG Proxy",
+  "proxy_status_message": "🔒 <b>Your TG Proxy</b>\n\nTraffic: {used} / {limit} ({pct}%)\nValid until: {end_date}",
+  "proxy_no_active_message": "You don't have an active TG proxy.\nChoose a package to purchase:",
+  "proxy_copy_link_button": "📋 Copy link",
+  "proxy_buy_button": "🛒 Buy proxy",
+  "proxy_buy_more_button": "🛒 Buy more",
+  "proxy_promo_button": "🎁 Free {gb} GB",
+  "proxy_select_package": "Choose a TG proxy package:",
+  "proxy_package_button": "📦 {gb} GB / {days} days — {price} ⭐",
+  "proxy_no_packages": "Proxy packages are not configured.",
+  "proxy_payment_description": "TG Proxy {gb} GB for {days} days",
+  "proxy_invoice_sent": "Invoice for TG Proxy {gb} GB / {days} days sent above. Click «Pay».",
+  "proxy_payment_success": "✅ Payment successful!\n\nYour TG proxy <b>{gb} GB</b> is active for <b>{days} days</b>.\nValid until: {end_date}\n\nConnection link:\n<code>{link}</code>\n\nClick the link or copy it 👆",
+  "proxy_activation_error": "❌ Proxy activation error. Please contact support.",
+  "proxy_link_message": "🔒 Your TG proxy link:\n\n<code>{link}</code>\n\nClick to connect.",
+  "proxy_promo_success": "🎁 Promo activated!\n\nYour free TG proxy: <b>{gb} GB</b> for <b>{days} days</b>.\n\nConnection link:\n<code>{link}</code>",
+  "proxy_promo_not_eligible": "Promo not available. You need a VPN subscription or you've already claimed it."
 }

@@ -40,6 +40,9 @@ class User(Base):
     promo_code_activations = relationship("PromoCodeActivation",
                                           back_populates="user",
                                           cascade="all, delete-orphan")
+    proxy_subscriptions = relationship("ProxySubscription",
+                                      back_populates="user",
+                                      cascade="all, delete-orphan")
     message_logs_authored = relationship("MessageLog",
                                          foreign_keys="MessageLog.user_id",
                                          back_populates="author_user",
@@ -117,6 +120,8 @@ class Payment(Base):
     updated_at = Column(DateTime(timezone=True),
                         onupdate=func.now(),
                         nullable=True)
+
+    product_type = Column(String, nullable=False, default="vpn", index=True)
 
     user = relationship("User", back_populates="payments")
     promo_code_used = relationship("PromoCode",
@@ -270,6 +275,31 @@ class PanelSyncStatus(Base):
     subscriptions_synced = Column(Integer, default=0)
 
     __table_args__ = (UniqueConstraint('id'), )
+
+
+class ProxySubscription(Base):
+    __tablename__ = "proxy_subscriptions"
+
+    proxy_sub_id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(BigInteger,
+                     ForeignKey("users.user_id"),
+                     nullable=False,
+                     index=True)
+    secret = Column(String, nullable=False, unique=True, index=True)
+    tg_proxy_link = Column(String, nullable=True)
+    traffic_limit_bytes = Column(BigInteger, nullable=False)
+    traffic_used_bytes = Column(BigInteger, default=0)
+    start_date = Column(DateTime(timezone=True), server_default=func.now())
+    end_date = Column(DateTime(timezone=True), nullable=False, index=True)
+    is_active = Column(Boolean, default=True, index=True)
+    is_promo = Column(Boolean, default=False)
+    last_traffic_sync = Column(DateTime(timezone=True), nullable=True)
+    created_at = Column(DateTime(timezone=True), server_default=func.now())
+
+    user = relationship("User", back_populates="proxy_subscriptions")
+
+    def __repr__(self):
+        return f"<ProxySubscription(id={self.proxy_sub_id}, user_id={self.user_id}, active={self.is_active})>"
 
 
 class AdCampaign(Base):

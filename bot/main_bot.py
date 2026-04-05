@@ -172,6 +172,23 @@ async def on_startup_configured(dispatcher: Dispatcher):
     except Exception as e:
         logging.error(f"STARTUP: Failed to initialize traffic notification worker: {e}", exc_info=True)
 
+    # Proxy traffic worker
+    try:
+        proxy_service = dispatcher.get("proxy_service")
+        if proxy_service and settings.PROXY_ENABLED:
+            from bot.services.proxy_traffic_worker import ProxyTrafficWorker
+            proxy_worker = ProxyTrafficWorker(
+                settings=settings,
+                proxy_service=proxy_service,
+                async_session_factory=async_session_factory,
+                bot=bot,
+            )
+            await proxy_worker.start()
+            dispatcher["proxy_traffic_worker"] = proxy_worker
+            logging.info("STARTUP: Proxy traffic worker initialized")
+    except Exception as e:
+        logging.error(f"STARTUP: Failed to initialize proxy traffic worker: {e}", exc_info=True)
+
     # Automatic sync on startup
     try:
         logging.info("STARTUP: Running automatic panel sync...")
@@ -223,6 +240,11 @@ async def on_shutdown_configured(dispatcher: Dispatcher):
     if traffic_worker:
         await traffic_worker.stop()
 
+    # Stop proxy traffic worker
+    proxy_worker = dispatcher.get("proxy_traffic_worker")
+    if proxy_worker:
+        await proxy_worker.stop()
+
     for service_key in (
         "panel_service",
         "cryptopay_service",
@@ -236,6 +258,7 @@ async def on_shutdown_configured(dispatcher: Dispatcher):
         "referral_service",
         "platega_service",
         "severpay_service",
+        "proxy_service",
     ):
         await close_service(service_key)
 

@@ -28,6 +28,14 @@ def get_main_menu_inline_keyboard(
         )
     )
 
+    if settings.PROXY_ENABLED:
+        builder.row(
+            InlineKeyboardButton(
+                text=_(key="menu_proxy_button"),
+                callback_data="main_action:proxy",
+            )
+        )
+
     promo_button = InlineKeyboardButton(
         text=_(key="menu_apply_promo_button"),
         callback_data="main_action:apply_promo")
