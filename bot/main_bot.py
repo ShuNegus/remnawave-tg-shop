@@ -189,6 +189,15 @@ async def on_startup_configured(dispatcher: Dispatcher):
     except Exception as e:
         logging.error(f"STARTUP: Failed to initialize proxy traffic worker: {e}", exc_info=True)
 
+    # Free subscription service
+    try:
+        free_sub_service = dispatcher.get("free_sub_service")
+        if free_sub_service:
+            await free_sub_service.start()
+            logging.info("STARTUP: FreeSubService initialized")
+    except Exception as e:
+        logging.error(f"STARTUP: Failed to initialize FreeSubService: {e}", exc_info=True)
+
     # Automatic sync on startup
     try:
         logging.info("STARTUP: Running automatic panel sync...")
@@ -244,6 +253,11 @@ async def on_shutdown_configured(dispatcher: Dispatcher):
     proxy_worker = dispatcher.get("proxy_traffic_worker")
     if proxy_worker:
         await proxy_worker.stop()
+
+    # Stop free sub service
+    free_sub_svc = dispatcher.get("free_sub_service")
+    if free_sub_svc:
+        await free_sub_svc.stop()
 
     for service_key in (
         "panel_service",

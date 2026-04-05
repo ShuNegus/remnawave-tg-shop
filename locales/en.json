@@ -541,5 +541,10 @@
   "proxy_activation_error": "❌ Proxy activation error. Please contact support.",
   "proxy_link_message": "🔒 Your TG proxy link:\n\n{link}\n\nClick to connect.",
   "proxy_promo_success": "🎁 Promo activated!\n\nYour free TG proxy: <b>{gb} GB</b> for <b>{days} days</b>.\n\nConnection link:\n{link}",
-  "proxy_promo_not_eligible": "Promo not available. You need a VPN subscription or you've already claimed it."
+  "proxy_promo_not_eligible": "Promo not available. You need a VPN subscription or you've already claimed it.",
+
+  "menu_free_sub_button": "🎲 Random subscription",
+  "free_sub_empty": "Subscription list is empty, try again later.",
+  "free_sub_message": "🎲 <b>Random subscription by zieng2</b>\n\n<code>{link}</code>\n\n📋 Copy the link and add it to your client. Usually you can do this via the «Add from clipboard» button or manually via the «Add» button.\n\n⚠️ <b>Important:</b> you need to copy and add the subscription link itself. Manually copying its contents is incorrect.\n\n⚠️ This is a random subscription from a public collection by <b>zieng2</b>. We are not responsible for its availability or usage.\n\nAuthor's Telegram bot: https://t.me/zieng2bot",
+  "free_sub_another_button": "🎲 Another one"
 }

@@ -726,7 +726,7 @@ async def main_action_callback_handler(
         i18n_data: dict, bot: Bot, subscription_service: SubscriptionService,
         referral_service: ReferralService, panel_service: PanelApiService,
         promo_code_service: PromoCodeService, session: AsyncSession,
-        proxy_service=None):
+        proxy_service=None, free_sub_service=None):
     action = callback.data.split(":")[1]
     user_id = callback.from_user.id
     current_lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
@@ -780,6 +780,28 @@ async def main_action_callback_handler(
     elif action == "proxy":
         from .proxy.core import proxy_menu_handler
         await proxy_menu_handler(callback, settings, i18n_data, session, proxy_service)
+    elif action == "free_sub":
+        if not free_sub_service:
+            await callback.answer(_("error_try_again"), show_alert=True)
+            return
+        link = free_sub_service.get_random_link()
+        if not link:
+            await callback.answer(_("free_sub_empty"), show_alert=True)
+            return
+        text = _("free_sub_message", link=link)
+        from aiogram.utils.keyboard import InlineKeyboardBuilder
+        kb = InlineKeyboardBuilder()
+        kb.row(InlineKeyboardButton(text=_("free_sub_another_button"),
+                                    callback_data="main_action:free_sub"))
+        kb.row(InlineKeyboardButton(text=_("back_to_main_menu_button"),
+                                    callback_data="main_action:back_to_main"))
+        try:
+            await callback.message.edit_text(text, reply_markup=kb.as_markup(),
+                                             parse_mode="HTML", disable_web_page_preview=True)
+        except Exception:
+            await callback.message.answer(text, reply_markup=kb.as_markup(),
+                                          parse_mode="HTML", disable_web_page_preview=True)
+        await callback.answer()
     elif action == "back_to_main_keep":
         await send_main_menu(callback,
                              settings,

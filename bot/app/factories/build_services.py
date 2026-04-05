@@ -17,6 +17,7 @@ from bot.services.platega_service import PlategaService
 from bot.services.severpay_service import SeverPayService
 from bot.services.lknpd_service import LknpdService
 from bot.services.proxy_service import ProxyService
+from bot.services.free_sub_service import FreeSubService
 
 
 def build_core_services(
@@ -82,6 +83,7 @@ def build_core_services(
     )
 
     proxy_service = ProxyService(settings, bot) if settings.PROXY_ENABLED else None
+    free_sub_service = FreeSubService()
 
     # Wire services that depend on each other
     try:
@@ -108,4 +110,5 @@ def build_core_services(
         "platega_service": platega_service,
         "severpay_service": severpay_service,
         "proxy_service": proxy_service,
+        "free_sub_service": free_sub_service,
     }

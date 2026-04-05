@@ -36,6 +36,13 @@ def get_main_menu_inline_keyboard(
             )
         )
 
+    builder.row(
+        InlineKeyboardButton(
+            text=_(key="menu_free_sub_button"),
+            callback_data="main_action:free_sub",
+        )
+    )
+
     promo_button = InlineKeyboardButton(
         text=_(key="menu_apply_promo_button"),
         callback_data="main_action:apply_promo")
