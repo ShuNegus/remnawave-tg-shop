@@ -791,10 +791,10 @@ async def main_action_callback_handler(
         text = _("free_sub_message", link=link)
         from aiogram.utils.keyboard import InlineKeyboardBuilder
         kb = InlineKeyboardBuilder()
-        kb.row(InlineKeyboardButton(text=_("free_sub_another_button"),
-                                    callback_data="main_action:free_sub"))
-        kb.row(InlineKeyboardButton(text=_("back_to_main_menu_button"),
-                                    callback_data="main_action:back_to_main"))
+        kb.row(types.InlineKeyboardButton(text=_("free_sub_another_button"),
+                                          callback_data="main_action:free_sub"))
+        kb.row(types.InlineKeyboardButton(text=_("back_to_main_menu_button"),
+                                          callback_data="main_action:back_to_main"))
         try:
             await callback.message.edit_text(text, reply_markup=kb.as_markup(),
                                              parse_mode="HTML", disable_web_page_preview=True)
