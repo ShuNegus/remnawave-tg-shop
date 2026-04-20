@@ -320,6 +320,7 @@
   "log_promo_activation": "🎁 <b>Активирован промокод</b>\n\n👤 Пользователь: {user_display}\n🏷 Код: <code>{promo_code}</code>\n🎯 Бонус: <b>+{bonus_days} дн.</b>\n🕐 Время: {timestamp}",
   "log_promo_discount_activation": "💰 <b>Активирован промокод на скидку</b>\n\n👤 Пользователь: {user_display}\n🏷 Код: <code>{promo_code}</code>\n💵 Скидка: <b>{discount_percentage}%</b>\n🕐 Время: {timestamp}",
   "log_trial_activation": "🆓 <b>Активирован триал</b>\n\n👤 Пользователь: {user_display}\n⏰ Действует до: <b>{end_date}</b>\n🕐 Время: {timestamp}",
+  "log_free_sub_issued": "🎲 <b>Выдана случайная подписка zieng2</b>\n\n👤 Пользователь: {user_display}\n🕐 Время: {timestamp}",
   "log_panel_sync": "{status_emoji} <b>Синхронизация с панелью</b>\n\n📊 Статус: <b>{status}</b>\n👥 Обработано пользователей: <b>{users_processed}</b>\n📋 Синхронизировано подписок: <b>{subs_synced}</b>\n🕐 Время: {timestamp}\n\n📝 Детали:\n{details}",
   "log_suspicious_promo": "⚠️ <b>Подозрительная попытка ввода промокода</b>\n\n👤 Пользователь: {user_display}\n🆔 ID: <code>{user_id}</code>\n📝 Ввод: <pre>{suspicious_input}</pre>\n🕐 Время: {timestamp}",
   "admin_logs_csv_export_started": "📄 Начинаю экспорт логов в CSV...",

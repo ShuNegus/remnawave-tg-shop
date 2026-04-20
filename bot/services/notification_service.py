@@ -343,7 +343,32 @@ class NotificationService:
         profile_keyboard = self._build_profile_keyboard(_, user_id)
         await self._send_to_log_channel(message, reply_markup=profile_keyboard)
 
-    async def notify_panel_sync(self, status: str, details: str, 
+    async def notify_free_sub_issued(self, user_id: int,
+                                     username: Optional[str] = None,
+                                     first_name: Optional[str] = None):
+        """Send notification when a user requests a zieng2 free subscription."""
+        if not getattr(self.settings, "LOG_FREE_SUBS", True):
+            return
+
+        admin_lang = self.settings.DEFAULT_LANGUAGE
+        _ = lambda k, **kw: self.i18n.gettext(admin_lang, k, **kw) if self.i18n else k
+
+        user_display = self._format_user_display(
+            user_id=user_id,
+            username=username,
+            first_name=first_name,
+        )
+
+        message = _(
+            "log_free_sub_issued",
+            user_display=user_display,
+            timestamp=datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        )
+
+        profile_keyboard = self._build_profile_keyboard(_, user_id)
+        await self._send_to_log_channel(message, reply_markup=profile_keyboard)
+
+    async def notify_panel_sync(self, status: str, details: str,
                                users_processed: int, subs_synced: int,
                                username: Optional[str] = None):
         """Send notification about panel synchronization"""

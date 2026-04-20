@@ -658,6 +658,7 @@ class Settings(BaseSettings):
     LOG_PAYMENTS: bool = Field(default=True, description="Send notifications for successful payments")
     LOG_PROMO_ACTIVATIONS: bool = Field(default=True, description="Send notifications for promo code activations")
     LOG_TRIAL_ACTIVATIONS: bool = Field(default=True, description="Send notifications for trial activations")
+    LOG_FREE_SUBS: bool = Field(default=True, description="Send notifications when a user requests a free zieng2 subscription")
     LOG_SUSPICIOUS_ACTIVITY: bool = Field(default=True, description="Send notifications for suspicious promo attempts")
     DISCOUNT_PROMO_PAYMENT_TIMEOUT_MINUTES: int = Field(
         default=10,

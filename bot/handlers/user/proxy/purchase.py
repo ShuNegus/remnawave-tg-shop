@@ -145,7 +145,7 @@ async def proxy_pre_checkout_handler(pre_checkout: types.PreCheckoutQuery):
     await pre_checkout.answer(ok=True)
 
 
-@router.message(F.successful_payment)
+@router.message(F.successful_payment.invoice_payload.endswith(":proxy"))
 async def proxy_successful_payment_handler(
     message: types.Message,
     settings: Settings,
@@ -159,8 +159,6 @@ async def proxy_successful_payment_handler(
         return
 
     payload = payment.invoice_payload
-    if not payload.endswith(":proxy"):
-        return  # Not a proxy payment, let other handlers deal with it
 
     lang = i18n_data.get("current_language", settings.DEFAULT_LANGUAGE)
     i18n: Optional[JsonI18n] = i18n_data.get("i18n_instance")

@@ -319,6 +319,7 @@
   "log_promo_activation": "🎁 <b>Promo Code Activated</b>\n\n👤 User: {user_display}\n🏷 Code: <code>{promo_code}</code>\n🎯 Bonus: <b>+{bonus_days}d</b>\n🕐 Time: {timestamp}",
   "log_promo_discount_activation": "💰 <b>Discount Promo Code Activated</b>\n\n👤 User: {user_display}\n🏷 Code: <code>{promo_code}</code>\n💵 Discount: <b>{discount_percentage}%</b>\n🕐 Time: {timestamp}",
   "log_trial_activation": "🆓 <b>Trial Activated</b>\n\n👤 User: {user_display}\n⏰ Valid until: <b>{end_date}</b>\n🕐 Time: {timestamp}",
+  "log_free_sub_issued": "🎲 <b>Free zieng2 subscription issued</b>\n\n👤 User: {user_display}\n🕐 Time: {timestamp}",
   "log_panel_sync": "{status_emoji} <b>Panel Synchronization</b>\n\n📊 Status: <b>{status}</b>\n👥 Users processed: <b>{users_processed}</b>\n📋 Subscriptions synced: <b>{subs_synced}</b>\n🕐 Time: {timestamp}\n\n📝 Details:\n{details}",
   "log_suspicious_promo": "⚠️ <b>Suspicious Promo Code Attempt</b>\n\n👤 User: {user_display}\n🆔 ID: <code>{user_id}</code>\n📝 Input: <pre>{suspicious_input}</pre>\n🕐 Time: {timestamp}",
   "admin_logs_csv_export_started": "📄 Starting log export to CSV...",

@@ -788,6 +788,15 @@ async def main_action_callback_handler(
         if not link:
             await callback.answer(_("free_sub_empty"), show_alert=True)
             return
+        try:
+            from bot.services.notification_service import NotificationService
+            await NotificationService(bot, settings, i18n).notify_free_sub_issued(
+                user_id=user_id,
+                username=callback.from_user.username,
+                first_name=callback.from_user.first_name,
+            )
+        except Exception as exc:
+            logging.debug("Failed to log free sub issue: %s", exc)
         text = _("free_sub_message", link=link)
         from aiogram.utils.keyboard import InlineKeyboardBuilder
         kb = InlineKeyboardBuilder()
