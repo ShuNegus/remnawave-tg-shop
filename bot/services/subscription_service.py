@@ -500,6 +500,7 @@ class SubscriptionService:
             "status_from_panel": "ACTIVE",
             "traffic_limit_bytes": new_limit,
             "traffic_used_bytes": 0 if (is_legacy_migration or not active_sub) else None,
+            "last_notification_sent": None,
             "provider": provider,
             "skip_notifications": False,
             "auto_renew_enabled": False,

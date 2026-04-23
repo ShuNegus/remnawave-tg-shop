@@ -106,10 +106,10 @@ class TrafficNotificationWorker:
         if sub.skip_notifications:
             return
 
-        # Check last_notification_sent: if it's after this sub's start_date, we already notified
-        if sub.last_notification_sent and sub.start_date:
-            if sub.last_notification_sent >= sub.start_date:
-                return
+        # Already notified for this billing cycle. Purchase/extension code
+        # must reset last_notification_sent to None to re-enable notifications.
+        if sub.last_notification_sent is not None:
+            return
 
         # Send notification
         db_user = await user_dal.get_user_by_id(session, telegram_id)
